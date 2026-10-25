@@ -75,8 +75,15 @@ public class ComponentKey {
             return null;
         }
         try {
+            // toString() stores the user id (UserHandle.hashCode()), not an application uid.
+            // getUserHandleForUid() divides by PER_USER_RANGE and would map profile id 10 to
+            // user 0 when a persisted ComponentKey is read back.
+            int userId = Integer.parseInt(str.substring(sep + 1));
+            if (userId < 0) {
+                return null;
+            }
             return new ComponentKey(componentName,
-                    UserHandle.getUserHandleForUid(Integer.parseInt(str.substring(sep + 1))));
+                    UserHandle.of(userId));
         } catch (NumberFormatException ex) {
             return null;
         }
